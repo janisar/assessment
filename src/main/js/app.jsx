@@ -80,7 +80,7 @@ class App extends Component {
 
         <NameInput value={this.state.name} onChange={this.handleNameChange}/>
 
-        <SectorList value={this.state.userSectors} onChange={this.handleSectorsChange}/>
+        <SectorList sectors={this.state.userSectors} onChange={this.handleSectorsChange}/>
 
         <div className="form-elem">
           <input type="checkbox" checked={this.state.tc} onClick={() => this.setState({tc: !this.state.tc})}/>

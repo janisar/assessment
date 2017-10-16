@@ -8,7 +8,7 @@ class Sector extends Component {
       name = "\u00A0\u00A0" + name;
     }
     return(
-      <option value={this.props.value} defaultValue={this.props.selected}>{name}</option>
+      <option value={this.props.value}>{name}</option>
     );
   }
 }

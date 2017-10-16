@@ -55,12 +55,8 @@ class SectorList extends Component {
       .then(items => this.setState({sectors: items}));
   }
 
-  sectorIsSelected(sectorId) {
-    return this.props.value && this.props.value.filter(elem => elem === sectorId).length === 1;
-  }
-
   generateSectorRecursively(sector, depth) {
-    let sectors = [<Sector value={sector.id} name={sector.name} depth={depth} selected={this.sectorIsSelected(sector.id)}/>];
+    let sectors = [<Sector value={sector.id} name={sector.name} depth={depth} />];
     if (sector.children && sector.children.length > 0) {
       sector.children.forEach(sector => sectors.push(this.generateSectorRecursively(sector, depth + 1)));
     }
@@ -74,7 +70,7 @@ class SectorList extends Component {
     return (
       <div className="form-elem">
         <label>Sectors:</label>
-        <select multiple size="5" onChange={this.handleSectorsChange(this)}>
+        <select multiple size="5" value={this.props.sectors} onChange={this.handleSectorsChange(this)}>
           {sectors}
         </select>
         <TextInput visible={!this.state.valid && this.state.errorVisible} message={this.state.errorMessage}/>

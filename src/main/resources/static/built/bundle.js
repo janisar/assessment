@@ -178,7 +178,7 @@
 	          "Please enter your name and pick the Sectors you are currently involved in."
 	        ),
 	        _react2.default.createElement(_NameInput2.default, { value: this.state.name, onChange: this.handleNameChange }),
-	        _react2.default.createElement(_SectorList2.default, { value: this.state.userSectors, onChange: this.handleSectorsChange }),
+	        _react2.default.createElement(_SectorList2.default, { sectors: this.state.userSectors, onChange: this.handleSectorsChange }),
 	        _react2.default.createElement(
 	          "div",
 	          { className: "form-elem" },
@@ -22126,16 +22126,20 @@
 	  }, {
 	    key: "sectorIsSelected",
 	    value: function sectorIsSelected(sectorId) {
-	      return this.props.value && this.props.value.filter(function (elem) {
-	        return elem === sectorId;
-	      }).length === 1;
+	      if (this.props.sectors) {
+	        return this.props.sectors.filter(function (elem) {
+	          return elem === sectorId;
+	        }).length >= 1;
+	      } else {
+	        return false;
+	      }
 	    }
 	  }, {
 	    key: "generateSectorRecursively",
 	    value: function generateSectorRecursively(sector, depth) {
 	      var _this4 = this;
 	
-	      var sectors = [_react2.default.createElement(_Sector2.default, { value: sector.id, name: sector.name, depth: depth, selected: this.sectorIsSelected(sector.id) })];
+	      var sectors = [_react2.default.createElement(_Sector2.default, { value: sector.id, name: sector.name, depth: depth })];
 	      if (sector.children && sector.children.length > 0) {
 	        sector.children.forEach(function (sector) {
 	          return sectors.push(_this4.generateSectorRecursively(sector, depth + 1));
@@ -22163,7 +22167,7 @@
 	        ),
 	        _react2.default.createElement(
 	          "select",
-	          { multiple: true, size: "5", onChange: this.handleSectorsChange(this) },
+	          { multiple: true, size: "5", value: this.props.sectors, onChange: this.handleSectorsChange(this) },
 	          sectors
 	        ),
 	        _react2.default.createElement(_TextInput2.default, { visible: !this.state.valid && this.state.errorVisible, message: this.state.errorMessage })
@@ -22218,7 +22222,7 @@
 	      }
 	      return _react2.default.createElement(
 	        "option",
-	        { value: this.props.value, defaultValue: this.props.selected },
+	        { value: this.props.value, selected: this.props.isSelected },
 	        name
 	      );
 	    }
