@@ -71,9 +71,9 @@
 	
 	var _NameInput2 = _interopRequireDefault(_NameInput);
 	
-	var _InputError = __webpack_require__(187);
+	var _TextInput = __webpack_require__(187);
 	
-	var _InputError2 = _interopRequireDefault(_InputError);
+	var _TextInput2 = _interopRequireDefault(_TextInput);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -91,7 +91,16 @@
 	
 	    var _this = _possibleConstructorReturn(this, (App.__proto__ || Object.getPrototypeOf(App)).call(this));
 	
-	    _this.state = { name: "", userSectors: [], tc: false, valid: false, errorVisible: false, errorMessage: "Please fill all fields" };
+	    _this.state = {
+	      name: "",
+	      userSectors: [],
+	      tc: false,
+	      valid: false,
+	      errorVisible: false,
+	      errorMessage: "Please fill all fields",
+	      saved: false,
+	      successMessage: "Your details are successfully saved"
+	    };
 	
 	    _this.handleNameChange = _this.handleNameChange.bind(_this);
 	    _this.handleSectorsChange = _this.handleSectorsChange.bind(_this);
@@ -119,23 +128,10 @@
 	      return true;
 	    }
 	  }, {
-	    key: "componentDidMount",
-	    value: function componentDidMount() {
-	      var _this2 = this;
-	
-	      fetch("http://localhost:8080/getCustomerForm").then(function (result) {
-	        return result.json();
-	      }).then(function (customerForm) {
-	        return _this2.setState({
-	          name: customerForm.name,
-	          userSectors: customerForm.sectors,
-	          tc: customerForm.tc
-	        });
-	      });
-	    }
-	  }, {
 	    key: "postCustomerData",
 	    value: function postCustomerData(customerDataForm) {
+	      var _this2 = this;
+	
 	      fetch('http://localhost:8080/saveCustomerForm', {
 	        method: 'POST',
 	        headers: {
@@ -143,9 +139,30 @@
 	          'Content-Type': 'application/json'
 	        },
 	        body: JSON.stringify(customerDataForm)
-	      }).then(function () {
-	        alert("Data successfully saved");
+	      }).then(function (response) {
+	        return response.json();
+	      }).then(function (customerForm) {
+	        localStorage.clear();
+	        localStorage.setItem('customerForm', JSON.stringify(customerForm));
+	
+	        _this2.setState({ saved: true });
 	      });
+	    }
+	  }, {
+	    key: "componentDidMount",
+	    value: function componentDidMount() {
+	      var form = localStorage.getItem('customerForm');
+	
+	      if (form !== undefined) {
+	        var customerForm = JSON.parse(form);
+	        console.log(customerForm);
+	        this.setState({
+	          id: customerForm.id,
+	          name: customerForm.name,
+	          userSectors: customerForm.sectors,
+	          tc: customerForm.tc
+	        });
+	      }
 	    }
 	  }, {
 	    key: "render",
@@ -165,7 +182,7 @@
 	        _react2.default.createElement(
 	          "div",
 	          { className: "form-elem" },
-	          _react2.default.createElement("input", { type: "checkbox", value: this.state.tc, onClick: function onClick() {
+	          _react2.default.createElement("input", { type: "checkbox", checked: this.state.tc, onClick: function onClick() {
 	              return _this3.setState({ tc: !_this3.state.tc });
 	            } }),
 	          _react2.default.createElement(
@@ -174,11 +191,12 @@
 	            "Agree to terms"
 	          )
 	        ),
-	        _react2.default.createElement(_InputError2.default, { visible: this.state.errorVisible && !this.state.valid, errorMessage: this.state.errorMessage }),
+	        _react2.default.createElement(_TextInput2.default, { visible: this.state.saved, message: this.state.successMessage }),
+	        _react2.default.createElement(_TextInput2.default, { visible: this.state.errorVisible && !this.state.valid, message: this.state.errorMessage }),
 	        _react2.default.createElement(
 	          "button",
 	          { onClick: function onClick() {
-	              var customerDataForm = { tc: _this3.state.tc, name: _this3.state.name, sectors: _this3.state.userSectors };
+	              var customerDataForm = { id: _this3.state.id, tc: _this3.state.tc, name: _this3.state.name, sectors: _this3.state.userSectors };
 	
 	              if (_this3.isValid(customerDataForm)) {
 	                _this3.postCustomerData(customerDataForm);
@@ -22026,9 +22044,9 @@
 	
 	var _Sector2 = _interopRequireDefault(_Sector);
 	
-	var _InputError = __webpack_require__(187);
+	var _TextInput = __webpack_require__(187);
 	
-	var _InputError2 = _interopRequireDefault(_InputError);
+	var _TextInput2 = _interopRequireDefault(_TextInput);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -22106,11 +22124,18 @@
 	      });
 	    }
 	  }, {
+	    key: "sectorIsSelected",
+	    value: function sectorIsSelected(sectorId) {
+	      return this.props.value && this.props.value.filter(function (elem) {
+	        return elem === sectorId;
+	      }).length === 1;
+	    }
+	  }, {
 	    key: "generateSectorRecursively",
 	    value: function generateSectorRecursively(sector, depth) {
 	      var _this4 = this;
 	
-	      var sectors = [_react2.default.createElement(_Sector2.default, { value: sector.id, name: sector.name, depth: depth })];
+	      var sectors = [_react2.default.createElement(_Sector2.default, { value: sector.id, name: sector.name, depth: depth, selected: this.sectorIsSelected(sector.id) })];
 	      if (sector.children && sector.children.length > 0) {
 	        sector.children.forEach(function (sector) {
 	          return sectors.push(_this4.generateSectorRecursively(sector, depth + 1));
@@ -22138,10 +22163,10 @@
 	        ),
 	        _react2.default.createElement(
 	          "select",
-	          { multiple: true, size: "5", value: this.props.userSectors, onChange: this.handleSectorsChange(this) },
+	          { multiple: true, size: "5", onChange: this.handleSectorsChange(this) },
 	          sectors
 	        ),
-	        _react2.default.createElement(_InputError2.default, { visible: !this.state.valid && this.state.errorVisible, errorMessage: this.state.errorMessage })
+	        _react2.default.createElement(_TextInput2.default, { visible: !this.state.valid && this.state.errorVisible, message: this.state.errorMessage })
 	      );
 	    }
 	  }]);
@@ -22193,12 +22218,8 @@
 	      }
 	      return _react2.default.createElement(
 	        "option",
-	        { value: this.props.value },
-	        _react2.default.createElement(
-	          "span",
-	          null,
-	          name
-	        )
+	        { value: this.props.value, defaultValue: this.props.selected },
+	        name
 	      );
 	    }
 	  }]);
@@ -22232,26 +22253,26 @@
 	
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 	
-	var InputError = function (_Component) {
-	  _inherits(InputError, _Component);
+	var TextInput = function (_Component) {
+	  _inherits(TextInput, _Component);
 	
-	  function InputError() {
-	    _classCallCheck(this, InputError);
+	  function TextInput() {
+	    _classCallCheck(this, TextInput);
 	
-	    return _possibleConstructorReturn(this, (InputError.__proto__ || Object.getPrototypeOf(InputError)).apply(this, arguments));
+	    return _possibleConstructorReturn(this, (TextInput.__proto__ || Object.getPrototypeOf(TextInput)).apply(this, arguments));
 	  }
 	
-	  _createClass(InputError, [{
+	  _createClass(TextInput, [{
 	    key: "render",
 	    value: function render() {
 	      if (this.props.visible) {
 	        return _react2.default.createElement(
 	          "div",
-	          { className: "error" },
+	          null,
 	          _react2.default.createElement(
 	            "span",
 	            null,
-	            this.props.errorMessage
+	            this.props.message
 	          )
 	        );
 	      } else {
@@ -22260,10 +22281,10 @@
 	    }
 	  }]);
 	
-	  return InputError;
+	  return TextInput;
 	}(_react.Component);
 	
-	exports.default = InputError;
+	exports.default = TextInput;
 
 /***/ }),
 /* 188 */
@@ -22281,9 +22302,9 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _InputError = __webpack_require__(187);
+	var _TextInput = __webpack_require__(187);
 	
-	var _InputError2 = _interopRequireDefault(_InputError);
+	var _TextInput2 = _interopRequireDefault(_TextInput);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -22355,7 +22376,7 @@
 	          onChange: this.handleChange(this),
 	          onTouchEnd: this.handleChange(this),
 	          value: this.props.value }),
-	        _react2.default.createElement(_InputError2.default, { visible: this.state.errorVisible && !this.state.valid, errorMessage: this.state.errorMessage })
+	        _react2.default.createElement(_TextInput2.default, { visible: this.state.errorVisible && !this.state.valid, message: this.state.errorMessage })
 	      );
 	    }
 	  }]);

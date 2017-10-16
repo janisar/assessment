@@ -2,13 +2,22 @@ import React, {Component} from "react";
 import ReactDOM from "react-dom";
 import SectorList from "./container/SectorList.jsx";
 import NameInput from "./container/NameInput.jsx";
-import InputError from "./container/InputError.jsx";
+import TextInput from "./container/TextInput.jsx";
 
 class App extends Component {
 
   constructor() {
     super();
-    this.state = {name: "", userSectors: [], tc: false, valid: false, errorVisible: false, errorMessage: "Please fill all fields"};
+    this.state = {
+      name: "",
+      userSectors: [],
+      tc: false,
+      valid: false,
+      errorVisible: false,
+      errorMessage: "Please fill all fields",
+      saved: false,
+      successMessage: "Your details are successfully saved"
+    };
 
     this.handleNameChange = this.handleNameChange.bind(this);
     this.handleSectorsChange = this.handleSectorsChange.bind(this);
@@ -32,18 +41,6 @@ class App extends Component {
     return true;
   }
 
-  componentDidMount() {
-    fetch(`http://localhost:8080/getCustomerForm`)
-      .then(result => result.json())
-      .then(customerForm =>
-        this.setState({
-          name: customerForm.name,
-          userSectors: customerForm.sectors,
-          tc: customerForm.tc
-        })
-      );
-  }
-
   postCustomerData(customerDataForm) {
     fetch('http://localhost:8080/saveCustomerForm', {
       method: 'POST',
@@ -52,12 +49,31 @@ class App extends Component {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(customerDataForm)
-    }).then(() => {alert("Data successfully saved")});
+    }).then((response) => response.json()).then(customerForm => {
+      localStorage.clear();
+      localStorage.setItem('customerForm', JSON.stringify(customerForm));
+
+      this.setState({saved: true});
+    });
   }
 
 
-  render() {
+  componentDidMount() {
+    let form = localStorage.getItem('customerForm');
 
+    if (form !== undefined) {
+      let customerForm = JSON.parse(form);
+      console.log(customerForm);
+      this.setState({
+        id: customerForm.id,
+        name: customerForm.name,
+        userSectors: customerForm.sectors,
+        tc: customerForm.tc
+      });
+    }
+  }
+
+  render() {
     return (
       <div>
         <p>Please enter your name and pick the Sectors you are currently involved in.</p>
@@ -67,14 +83,15 @@ class App extends Component {
         <SectorList value={this.state.userSectors} onChange={this.handleSectorsChange}/>
 
         <div className="form-elem">
-          <input type="checkbox" value={this.state.tc} onClick={() => this.setState({tc: !this.state.tc})}/>
+          <input type="checkbox" checked={this.state.tc} onClick={() => this.setState({tc: !this.state.tc})}/>
           <label>Agree to terms</label>
         </div>
 
-        <InputError visible={this.state.errorVisible && !this.state.valid} errorMessage={this.state.errorMessage}/>
+        <TextInput visible={this.state.saved} message={this.state.successMessage}/>
+        <TextInput visible={this.state.errorVisible && !this.state.valid} message={this.state.errorMessage}/>
 
         <button onClick={() => {
-          let customerDataForm = {tc: this.state.tc, name: this.state.name, sectors: this.state.userSectors};
+          let customerDataForm = {id: this.state.id, tc: this.state.tc, name: this.state.name, sectors: this.state.userSectors};
 
           if (this.isValid(customerDataForm)) {
             this.postCustomerData(customerDataForm);

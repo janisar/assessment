@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import InputError from "./InputError.jsx";
+import TextInput from "./TextInput.jsx";
 
 class NameInput extends Component {
 
@@ -50,7 +50,7 @@ class NameInput extends Component {
           onChange={this.handleChange(this)}
           onTouchEnd={this.handleChange(this)}
           value={this.props.value}/>
-        <InputError visible={this.state.errorVisible && !this.state.valid} errorMessage={this.state.errorMessage}/>
+        <TextInput visible={this.state.errorVisible && !this.state.valid} message={this.state.errorMessage}/>
       </div>
     )
   }

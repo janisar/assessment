@@ -1,12 +1,12 @@
 import React, {Component} from "react";
 
-class InputError extends Component {
+class TextInput extends Component {
 
   render() {
     if (this.props.visible) {
       return (
-        <div className="error">
-          <span>{this.props.errorMessage}</span>
+        <div>
+          <span>{this.props.message}</span>
         </div>
       )
     }
@@ -17,4 +17,4 @@ class InputError extends Component {
 
 }
 
-export default InputError;
+export default TextInput;

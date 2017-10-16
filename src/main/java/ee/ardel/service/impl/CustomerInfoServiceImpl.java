@@ -27,6 +27,7 @@ public class CustomerInfoServiceImpl implements CustomerInfoService {
       return null;
     }
     return CustomerInfo.builder()
+      .id(customerDataForm.getId())
       .name(customerDataForm.getName())
       .sectors(sectors)
       .tc(customerDataForm.isTc())
@@ -35,10 +36,6 @@ public class CustomerInfoServiceImpl implements CustomerInfoService {
 
   @Override
   public CustomerInfo saveCustomerInfo(CustomerInfo customerInfo) {
-    if (customerInfo.getId() != null) {
-      CustomerInfo existingCustomerInfo = customerInfoRepository.findOne(customerInfo.getId());
-
-    }
     return customerInfoRepository.save(customerInfo);
   }
 }
